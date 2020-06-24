@@ -1,0 +1,13 @@
+- name: Configure Openvpn Server
+  hosts: openvpn_server
+  become: yes
+
+  vars:
+   ca_dir: "/root/openvpn-ca"
+   client_dir: "/root/client-configs"
+   client_files_dir: "/root/client-configs/files"
+
+  roles:
+    - role: openvpn
+      when: ansible_facts['os_family'] == "Debian"
+

@@ -1,0 +1,101 @@
+---
+- name: Install requirements
+  apt:
+    name: ["openvpn", "easy-rsa"]
+    update_cache: yes
+    state: present
+  ignore_errors: no
+  become: yes
+  tags: install
+
+- name: Create ca dir
+  shell: make-cadir {{ ca_dir }}
+  become: yes
+  ignore_errors: yes
+
+- name: Make /etc/openvpn/ccd
+  file:
+    path: /etc/openvpn/ccd
+    state: directory
+  become: yes
+
+- name: Make client dir
+  file:
+    path: "{{ client_dir }}"
+    state: directory
+  become: yes
+
+- name: Make client files dir
+  file:
+    path: "{{ client_files_dir }}"
+    state: directory
+  become: yes
+
+- name: Copy openssl.cnf
+  copy:
+    src: openssl.cnf
+    dest: "{{ ca_dir }}"
+  become: yes
+
+- name: Copy vars
+  copy:
+    src: vars
+    dest: "{{ ca_dir }}"
+  become: yes
+
+- name: Copy server.conf
+  copy:
+    src: server.conf
+    dest: /etc/openvpn
+  become: yes
+
+- name: Copy base.conf
+  copy:
+    src: base.conf
+    dest: "{{ client_dir }}"
+  become: yes
+
+- name: Add remote to base.conf
+  shell: echo "remote {{ inventory_hostname }} 443" >> base.conf
+  args:
+    executable: /bin/bash
+    chdir: "{{ client_dir }}"
+
+- name: Copy make_config.sh
+  copy:
+    src: make_config.sh
+    dest: "{{ client_dir }}"
+    mode: '700'
+  become: yes
+
+- name: Copy add_new_keys.sh
+  copy:
+    src: add_new_keys.sh
+    dest: "{{ client_dir }}"
+    mode: '700'
+  become: yes
+
+- name: Copy add_new_client.py
+  copy:
+    src: add_new_client.py
+    dest: "{{ client_dir }}"
+    mode: '700'
+  become: yes
+
+- name: Gen certs
+  shell: source vars && ./clean-all && ./build-ca --batch && ./build-key-server --batch server && ./build-dh --batch && openvpn --genkey --secret keys/ta.key
+  become: yes
+  args:
+    executable: /bin/bash
+    chdir: "{{ ca_dir }}"
+
+- name: Copy cert files
+  shell: cp ca.crt server.crt server.key ta.key dh2048.pem /etc/openvpn
+  become: yes
+  args:
+    executable: /bin/bash
+    chdir: "{{ ca_dir }}/keys"
+
+- name: Restart openvpn server
+  shell: systemctl start openvpn@server
+  become: yes

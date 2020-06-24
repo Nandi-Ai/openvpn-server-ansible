@@ -1,0 +1,3 @@
+[openvpn_server]
+example.compute.amazonaws.com 	ansible_user=ubuntu
+
