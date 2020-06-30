@@ -1,4 +1,5 @@
 import os
+import sys
 from ipaddress import IPv4Network
 from os import listdir
 from os.path import isfile, join
@@ -33,6 +34,8 @@ if __name__ == '__main__':
         print("Name already taken")
         sys.exit(1)
 
+    # Get reserved ip addresses
+    get_new_client_data()
     hosts_iterator = (host for host in NETWORK.hosts() if str(host) not in RESERVED_IP)
     new_ip = next(hosts_iterator)
     entry = "ifconfig-push %s 255.255.255.255" % (new_ip)
