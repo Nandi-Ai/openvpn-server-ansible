@@ -29,13 +29,17 @@ if __name__ == '__main__':
     args = argparser.parse_args()
 
     new_ccd_file = args.name
+    if os.path.exists(os.path.join()):
+        print("Name already taken")
+        sys.exit(1)
+
     hosts_iterator = (host for host in NETWORK.hosts() if str(host) not in RESERVED_IP)
     new_ip = next(hosts_iterator)
     entry = "ifconfig-push %s 255.255.255.255" % (new_ip)
 
     # Generate new certs
     print("Generating new certs for %s" % new_ccd_file)
-
+    
     os.system(MAKE_NEW_KEYS_SCRIPT_PATH+" "+new_ccd_file)
 
     # Execute script to generate new openvpn file
