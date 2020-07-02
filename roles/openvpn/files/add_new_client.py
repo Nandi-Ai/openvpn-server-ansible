@@ -30,7 +30,7 @@ if __name__ == '__main__':
     args = argparser.parse_args()
 
     new_ccd_file = args.name
-    if os.path.exists(os.path.join()):
+    if os.path.exists(os.path.join(CCD,new_ccd_file)):
         print("Name already taken")
         sys.exit(1)
 

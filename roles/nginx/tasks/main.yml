@@ -1,0 +1,83 @@
+---
+- name: Add certbot repositry
+  apt_repository:
+    repo: ppa:certbot/certbot
+    state: present
+  become: yes
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Install requirements (Ubuntu)
+  apt:
+    name: ["nginx", "python-certbot-nginx", "python3-passlib"]
+    update_cache: yes
+    state: present
+  ignore_errors: no
+  become: yes
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Install requirements (Debian)
+  apt:
+    name: ["nginx", "python3-certbot-nginx","python3-acme","python3-certbot","python3-mock","python3-openssl","python3-pkg-resources","python3-pyparsing","python3-zope.interface"]
+    update_cache: yes
+    state: present
+  ignore_errors: no
+  become: yes
+  when: ansible_distribution == 'Debian'
+
+- name: Create domain www directory
+  file:
+    path: "/var/www/{{ domain_name }}/html"
+    state: directory
+    owner: www-data
+    group: www-data
+  become: yes
+
+- name: Copy index.html file
+  copy:
+    src: index.html
+    dest: "/var/www/{{ domain_name }}/html"
+  become: yes
+
+- name: Copy nginx.conf file
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx
+  become: yes
+
+- name: Copy domain config file
+  copy:
+    src: "{{ domain_name }}"
+    dest: /etc/nginx/sites-available/
+  become: yes
+
+- name: Enable domain
+  file:
+    src: "/etc/nginx/sites-available/{{ domain_name }}"
+    dest: "/etc/nginx/sites-enabled/{{ domain_name }}"
+    state: link
+  become: yes
+
+- name: Create htpasswd file
+  htpasswd:
+    path: "/var/www/{{ domain_name }}/.htpasswd"
+    name: access
+    password: 'Dahm3aisee7O'
+    owner: root
+    group: www-data
+    mode: 0640
+
+- name: Test nginx config
+  shell: nginx -t
+  become: yes
+
+- name: Stop service 
+  service:
+    name: "nginx"
+    state: stopped
+  become: yes
+
+- name: Start service
+  service:
+    name: "nginx"
+    state: started
+  become: yes
