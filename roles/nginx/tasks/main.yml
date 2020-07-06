@@ -8,7 +8,7 @@
 
 - name: Install requirements (Ubuntu)
   apt:
-    name: ["nginx", "python-certbot-nginx", "python3-passlib"]
+    name: ["nginx", "python-certbot-nginx", "python3-passlib", "python3-pip", "python3-dev", "python3-setuptools", "uwsgi-plugin-python3", "python3-gunicorn", "gunicorn3"]
     update_cache: yes
     state: present
   ignore_errors: no
@@ -17,12 +17,16 @@
 
 - name: Install requirements (Debian)
   apt:
-    name: ["nginx", "python3-certbot-nginx","python3-acme","python3-certbot","python3-mock","python3-openssl","python3-pkg-resources","python3-pyparsing","python3-zope.interface"]
+    name: ["nginx", "python3-certbot-nginx","python3-acme","python3-certbot","python3-mock","python3-openssl","python3-pkg-resources","python3-pyparsing","python3-zope.interface", "python3-pip", "python3-dev", "python3-setuptools", "uwsgi-plugin-python3", "python3-gunicorn", "gunicorn3"]
     update_cache: yes
     state: present
   ignore_errors: no
   become: yes
   when: ansible_distribution == 'Debian'
+
+- name: Install requirements using pip
+  shell: pip3 install flask
+  become: yes
 
 - name: Create domain www directory
   file:
@@ -32,10 +36,40 @@
     group: www-data
   become: yes
 
+- name: Create api www directory
+  file:
+    path: "/var/www/api"
+    state: directory
+    owner: www-data
+    group: www-data
+  become: yes
+
 - name: Copy index.html file
   copy:
     src: index.html
     dest: "/var/www/{{ domain_name }}/html"
+  become: yes
+
+- name: Copy api.py file
+  copy:
+    src: api.py
+    dest: "/var/www/api"
+  become: yes
+
+- name: Copy wsgi.py file
+  copy:
+    src: wsgi.py
+    dest: "/var/www/api"
+  become: yes
+
+- name: Copy api service file
+  copy:
+    src: api.service
+    dest: "/etc/systemd/system/api.service"
+  become: yes
+
+- name: Run api service
+  shell: systemctl start api
   become: yes
 
 - name: Copy nginx.conf file
@@ -50,10 +84,23 @@
     dest: /etc/nginx/sites-available/
   become: yes
 
+- name: Copy api config file
+  copy:
+    src: api.remote.nandi.io
+    dest: /etc/nginx/sites-available/
+  become: yes
+
 - name: Enable domain
   file:
     src: "/etc/nginx/sites-available/{{ domain_name }}"
     dest: "/etc/nginx/sites-enabled/{{ domain_name }}"
+    state: link
+  become: yes
+
+- name: Enable api
+  file:
+    src: "/etc/nginx/sites-available/api.remote.nandi.io"
+    dest: "/etc/nginx/sites-enabled/api.remote.nandi.io"
     state: link
   become: yes
 
