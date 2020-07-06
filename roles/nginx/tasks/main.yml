@@ -44,6 +44,14 @@
     group: www-data
   become: yes
 
+- name: Create scripts www directory
+  file:
+    path: "/var/www/api/scripts"
+    state: directory
+    owner: www-data
+    group: www-data
+  become: yes
+
 - name: Copy index.html file
   copy:
     src: index.html
@@ -60,6 +68,18 @@
   copy:
     src: wsgi.py
     dest: "/var/www/api"
+  become: yes
+
+- name: Copy check_openvpn.sh  file
+  copy:
+    src: check_openvpn.sh
+    dest: "/var/www/api/scripts"
+  become: yes
+
+- name: Copy GetOpenVpnClientFile.py file
+  copy:
+    src: GetOpenVpnClientFile.py
+    dest: "/var/www/api/scripts"
   become: yes
 
 - name: Copy api service file
