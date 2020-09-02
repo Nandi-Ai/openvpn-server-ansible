@@ -6,8 +6,7 @@ import requests
 if __name__ == '__main__':
 
     TOKEN = "iyietee6aiPh7sief7Iev0ohzeesh3"
-#    SERIAL_NUMBER = os.popen('dmidecode -s system-serial-number').read()
-    SERIAL_NUMBER = "000000432"
+    SERIAL_NUMBER = os.popen('dmidecode -s system-serial-number').read()
     if SERIAL_NUMBER.endswith("\n"):
         SERIAL_NUMBER = SERIAL_NUMBER[0:-2]
 
