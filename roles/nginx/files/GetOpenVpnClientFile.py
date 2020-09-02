@@ -1,27 +1,38 @@
-import requests
 import os
 import json
-import subprocess
-import shlex
-import argparse
-
+import sys
+import requests
 
 if __name__ == '__main__':
-    argparser = argparse.ArgumentParser()
-    argparser.add_argument('-d', '--dir', default='./', help='Selected Dir')
-    args = argparser.parse_args()
-    DIR = args.dir
-    serialNumber=os.popen('sudo dmidecode -s system-serial-number').read()
-    if serialNumber.endswith("\n"):
-        serialNumber=serialNumber[0:-2]
 
-    url = 'http://3.125.230.57:5000/checkIfFileExist'
-    serialObj = {'serialNumber':str(serialNumber)}
+    TOKEN = "iyietee6aiPh7sief7Iev0ohzeesh3"
+#    SERIAL_NUMBER = os.popen('dmidecode -s system-serial-number').read()
+    SERIAL_NUMBER = "000000432"
+    if SERIAL_NUMBER.endswith("\n"):
+        SERIAL_NUMBER = SERIAL_NUMBER[0:-2]
 
-    x = requests.post(url, json =json.dumps(serialObj))
-    if x.text == "true":
-        # Pull client file by ftp
-        subprocess.call(shlex.split('./ftp.sh '+str(serialNumber)+" "+DIR))
-    else:print("Failed to get client .ovpn file")
-    print(x)
+    CERT_DIR = "/etc/openvpn/files/"
+    CERT_FILE = "/etc/openvpn/files/"+SERIAL_NUMBER+".ovpn"
+    if os.path.isfile(CERT_FILE):
+        print("Certificate file %s already exists. Exiting." % (CERT_FILE))
+        sys.exit(0)
 
+    print("Requesting for cert")
+    URL = 'http://api.remote.nandi.io/getCertificate'
+    REQUEST_OBJ = {'token':TOKEN, 'serial_number':str(SERIAL_NUMBER)}
+
+    RESP = requests.post(URL, json=json.dumps(REQUEST_OBJ))
+    RESP_JSON = RESP.json()
+
+    if RESP_JSON['status'] == "true":
+        if not os.path.isdir(CERT_DIR):
+            print("Making cert dir %s" % (CERT_DIR))
+            os.makedirs(CERT_DIR)
+
+        print("Saving cert to %s" % CERT_FILE)
+        with open(CERT_FILE, 'w') as CERT:
+            CERT.write(RESP_JSON['certificate'])
+        print('Cert file saved')
+    else:
+        print("Failed to get client %s.ovpn file. Reason: %s" %(SERIAL_NUMBER, RESP_JSON['status']))
+        sys.exit(1)

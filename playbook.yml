@@ -9,5 +9,17 @@
 
   roles:
     - role: openvpn
-      when: ansible_facts['os_family'] == "Debian"
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
+- name: Configure nginx with ssl
+  hosts: openvpn_server
+  become: yes
+
+  vars:
+   ca_dir: "/root/openvpn-ca"
+   client_dir: "/root/client-configs"
+   client_files_dir: "/root/client-configs/files"
+
+  roles:
+    - role: nginx
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'

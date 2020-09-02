@@ -10,7 +10,7 @@ After=network.target
 [Service]
 
 # Service specify the user and group under which our process will run.
-User=www-data
+User=root
 
 # give group ownership to the www-data group so that Nginx can communicate easily with the Gunicorn processes.
 Group=www-data
