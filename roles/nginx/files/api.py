@@ -27,8 +27,12 @@ def get_certificate():
     if "token" in request_data:
         token = str(request_data["token"])
         if token != TOKEN:
-            response_obj = {'status':'Authorization needed'}
+            response_obj = {'status':'Bad token'}
             return response_obj
+    else:
+        response_obj = {'status':'Authorization needed'}
+        return response_obj
+
 
     if "serial_number" in request_data: # Get Checks And Server
         serial_number = str(request_data["serial_number"])
