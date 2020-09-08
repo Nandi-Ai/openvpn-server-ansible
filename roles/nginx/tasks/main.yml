@@ -46,7 +46,7 @@
 
 - name: Create scripts www directory
   file:
-    path: "/var/www/scripts"
+    path: "/var/www/{{ domain_name }}/html/scripts"
     state: directory
     owner: www-data
     group: www-data
@@ -61,13 +61,13 @@
 - name: Copy check_openvpn.sh  file
   copy:
     src: check_openvpn.sh
-    dest: "/var/www/{{ domain_name }}/scripts"
+    dest: "/var/www/{{ domain_name }}/html/scripts"
   become: yes
 
 - name: Copy GetOpenVpnClientFile.py file
   copy:
     src: GetOpenVpnClientFile.py
-    dest: "/var/www/{{ domain_name }}/scripts"
+    dest: "/var/www/{{ domain_name }}/html/scripts"
   become: yes
 
 - name: Copy api.py file
