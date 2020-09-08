@@ -3,12 +3,28 @@ import json
 import sys
 import requests
 
+def getserial():
+    # Extract serial from cpuinfo file
+    cpuserial = "0000000000000000"
+    try:
+        f = open('/proc/cpuinfo', 'r')
+        for line in f:
+            if line[0:6] == 'Serial':
+                cpuserial = line[10:26]
+        f.close()
+    except:
+        cpuserial = "ERROR000000000"
+
+    return cpuserial
+
+
 if __name__ == '__main__':
 
     TOKEN = "iyietee6aiPh7sief7Iev0ohzeesh3"
-    SERIAL_NUMBER = os.popen('dmidecode -s system-serial-number').read()
-    if SERIAL_NUMBER.endswith("\n"):
-        SERIAL_NUMBER = SERIAL_NUMBER[0:-2]
+    SERIAL_NUMBER = getserial()
+    if SERIAL_NUMBER == "ERROR000000000":
+        print("Could not get serial. Exiting!")
+        sys.exit(1)
 
     CERT_DIR = "/etc/openvpn/files/"
     CERT_FILE = "/etc/openvpn/files/"+SERIAL_NUMBER+".ovpn"
