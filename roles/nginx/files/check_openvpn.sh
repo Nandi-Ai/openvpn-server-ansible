@@ -2,7 +2,7 @@
 
 # Script to periodically check existence of vpn connection
 path_to_ovpn_files="/etc/openvpn/files"
-$SERIAL=`cat /proc/cpuinfo | grep -i serial | awk -F ': ' '{print $2}'`
+SERIAL=`cat /proc/cpuinfo | grep -i serial | awk -F ': ' '{print $2}'`
 
 cd "$path_to_ovpn_files"
 
