@@ -1,3 +1,7 @@
 [openvpn_server]
+<<<<<<< HEAD
 remote.nandi.io 	ansible_user=ubuntu letsencrypt_email=me@example.com domain_name=remote.nandi.io
+=======
+remote.nandi.io 	ansible_user=ubuntu letsencrypt_email=hubert@devops-x.net domain_name=remote.nandi.io
+>>>>>>> 6e9312bb27ff753fadaab402bb5e4d298a7ec8d7
 

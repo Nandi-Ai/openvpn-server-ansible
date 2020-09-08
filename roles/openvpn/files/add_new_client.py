@@ -25,35 +25,35 @@ def get_new_client_data():
                     RESERVED_IP.append(segments[1])
 
 if __name__ == '__main__':
-    argparser = argparse.ArgumentParser()
-    argparser.add_argument('-n', '--name', required=True, help='Selected Name')
-    args = argparser.parse_args()
+    ARGPARSER = argparse.ArgumentParser()
+    ARGPARSER.add_argument('-n', '--name', required=True, help='Selected Name')
+    ARGS = ARGPARSER.parse_args()
 
-    new_ccd_file = args.name
-    if os.path.exists(os.path.join(CCD,new_ccd_file)):
+    NEW_CCD_FILE = ARGS.name
+    if os.path.exists(os.path.join(CCD, NEW_CCD_FILE)):
         print("Name already taken")
         sys.exit(1)
 
     # Get reserved ip addresses
     get_new_client_data()
-    hosts_iterator = (host for host in NETWORK.hosts() if str(host) not in RESERVED_IP)
-    new_ip = next(hosts_iterator)
-    entry = "ifconfig-push %s 255.255.255.255" % (new_ip)
+    HOSTS_ITERATOR = (host for host in NETWORK.hosts() if str(host) not in RESERVED_IP)
+    NEW_IP = next(HOSTS_ITERATOR)
+    ENTRY = "ifconfig-push %s 255.255.255.255" % (NEW_IP)
 
     # Generate new certs
-    print("Generating new certs for %s" % new_ccd_file)
-    
-    os.system(MAKE_NEW_KEYS_SCRIPT_PATH+" "+new_ccd_file)
+    print("Generating new certs for %s" % NEW_CCD_FILE)
+
+    os.system(MAKE_NEW_KEYS_SCRIPT_PATH+" "+NEW_CCD_FILE)
 
     # Execute script to generate new openvpn file
-    os.system(MAKE_OPENVPN_CONFIG_SCRIPT_PATH+" "+new_ccd_file)
+    os.system(MAKE_OPENVPN_CONFIG_SCRIPT_PATH+" "+NEW_CCD_FILE)
 
     # Create new ccd file
-    with open(join(CCD, new_ccd_file), 'w') as nccd:
-        nccd.write(entry)
+    with open(join(CCD, NEW_CCD_FILE), 'w') as nccd:
+        nccd.write(ENTRY)
 
     print("Please transfer %s.ovpn file to client machine" % (
-        join(CLIENT_CONFIGS_PATH, "files", new_ccd_file)))
+        join(CLIENT_CONFIGS_PATH, "files", NEW_CCD_FILE)))
 
     print("Restarting openvpn service!")
     os.system("service openvpn restart")

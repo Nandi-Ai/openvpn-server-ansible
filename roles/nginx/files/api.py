@@ -1,57 +1,72 @@
-from flask import Flask, request, render_template
 import os
-import logging
 import os.path
-from os import path
-import os
-import time
-import shutil
+import logging
 import json
-
+from flask import Flask, request
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.INFO)
+TOKEN = "iyietee6aiPh7sief7Iev0ohzeesh3"
+
+@app.route('/info', methods=['GET'])
+def get_info():
+    """ Returns 'Running' string. Used to test if api is running """
+    LOGGER.info('Called info method')
+    return "Running"
 
 
-@app.route('/checkIfFileExist', methods=['POST'])
-def checkIfFileExist():
-    logger.info(f'Check if file exist - if not create it !')
+@app.route('/getCertificate', methods=['POST'])
+def get_certificate():
+    """ Returns openvpn certificate
+        Takes serial number as param """
+    LOGGER.info('Check if file exist - if not create it !')
     request_data = json.loads(request.get_json())
-    if "serialNumber" in request_data: # Get Checks And Server
-        serialNumber=str(request_data["serialNumber"])
-        filePath = "/root/client-configs/files/" + str(serialNumber) + ".ovpn"
-        if os.path.isfile("/home/vsftp/ftp/"+str(serialNumber)+".ovpn"):
+
+    if "token" in request_data:
+        token = str(request_data["token"])
+        if token != TOKEN:
+            response_obj = {'status':'Bad token'}
+            return response_obj
+    else:
+        response_obj = {'status':'Authorization needed'}
+        return response_obj
+
+
+    if "serial_number" in request_data: # Get Checks And Server
+        serial_number = str(request_data["serial_number"])
+        file_path = "/root/client-configs/files/" + str(serial_number) + ".ovpn"
+        if os.path.isfile(file_path):
             # Created already
-            logger.info(f'File Exist Already - return true')
-            return "true"
-        else: # Need to create
-            logger.info(f'Create client .ovpn file')
-            os.system("python3 /root/client-configs/add_new_client.py -n "+str(serialNumber))
-            countSeconds=0
-            while True:
-                if countSeconds <=30: # Waiting 30 seconds maximum
-                    if checkIfFileExist(filePath):
-                        shutil.move(filePath,"/home/vsftp/ftp/"+str(serialNumber)+".ovpn")
-                        return "true" # Return to the post request
-                    else:
-                        time.sleep(1)
-                        countSeconds += 1
-                        print("Seconds:",countSeconds)
+            LOGGER.info('File Exist Already - return certificate')
+            with open(file_path, 'r') as file:
+                cert = file.read()
+                response_obj = {'status':'true', 'certificate':cert}
+                return json.dumps(response_obj)
+        else:
+            # Need to create new cert
+            LOGGER.info('Generate new certificate for %s', serial_number)
+            os.system("python3 /root/client-configs/add_new_client.py -n "+serial_number)
+            if check_if_file_exist(file_path):
+                with open(file_path, 'r') as file:
+                    cert = file.read()
+                response_obj = {'status':'true', 'certificate':cert}
+                return json.dumps(response_obj)
 
-                else:break
-            return "false"
+            response_obj = {'status':'Failed to generate certificate for '+str(serial_number)}
+            return json.dumps(response_obj)
 
-    else:return "false" # If serialNumber is not in request_data
+    else:
+        response_obj = {'status':'Bad request'}
+        return response_obj # If serial_number is not in request_data
 
-def checkIfFileExist(filePath):
-    print("Checking if",filePath,"Exist")
-    if os.path.isfile(filePath):
+def check_if_file_exist(file_path):
+    """ Check if file exists - returns true if yes """
+    if os.path.isfile(file_path):
         return True # Not exist
     return False # Exist
 
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
-
