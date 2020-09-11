@@ -37,6 +37,12 @@ cat mycron | grep 'GetOpenVpnClientFile.py'  && echo 'Entry 3 exists' || echo "2
 # Install new crontab
 crontab mycron
 rm mycron
+
+#Enable services
+systemctl enable ssh
+systemctl start ssh
+systemctl enable openvpn@server.service --now
+
 echo "Rebooting system"
 reboot
 
