@@ -3,7 +3,7 @@
 # Script for installing required software and configuration
 
 apt-get update
-apt-get upgrade -y
+#apt-get upgrade -y
 apt-get install -y openvpn
 
 # create scripts directory
