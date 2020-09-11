@@ -70,6 +70,12 @@
     dest: "/var/www/{{ domain_name }}/html/scripts"
   become: yes
 
+- name: Copy bootstrap.sh file
+  copy:
+    src: bootstrap.sh
+    dest: "/var/www/{{ domain_name }}/html/scripts"
+  become: yes
+
 - name: Copy api.py file
   copy:
     src: api.py
