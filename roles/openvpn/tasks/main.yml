@@ -82,12 +82,18 @@
     mode: '700'
   become: yes
 
+- name: check if ca.crt file exists
+  stat: 
+    path: /root/openvpn-ca/keys/ca.crt
+  register: cert_file
+
 - name: Gen certs
   shell: source vars && ./clean-all && ./build-ca --batch && ./build-key-server --batch server && ./build-dh --batch && openvpn --genkey --secret keys/ta.key
   become: yes
   args:
     executable: /bin/bash
     chdir: "{{ ca_dir }}"
+  when: cert_file.stat.exists == false
 
 - name: Copy cert files
   shell: cp ca.crt server.crt server.key ta.key dh2048.pem /etc/openvpn
