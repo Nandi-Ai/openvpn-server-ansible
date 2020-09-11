@@ -16,10 +16,10 @@ This will create new keys and config for client
 # Raspberry Pi bootstrap
 To bootstrap Raspberry run as root on device:
 
-`mkdir /opt/scripts
+`mkdir /opt/scripts`
 
-curl -u access:Dahm3aisee7O  -o /opt/scripts/bootstrap.sh http://remote.nandi.io/scripts/bootstrap.sh
+`curl -u access:Dahm3aisee7O  -o /opt/scripts/bootstrap.sh http://remote.nandi.io/scripts/bootstrap.sh`
 
-sh /opt/scripts/bootstrap.sh`
+`sh /opt/scripts/bootstrap.sh`
 
 This script will install required packages, download scrips and set up cron jobs
