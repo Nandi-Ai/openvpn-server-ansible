@@ -31,7 +31,7 @@ echo "entry 2"
 cat mycron | grep 'check_openvpn.sh'  && echo 'Entry 2 exists' || echo '00 * * * *	root sh /opt/scripts/check_openvpn.sh' >> mycron
 
 echo "entry 3"
-ENTRY="20 */3 * * *	root python3 /opt/scripts/GetOpenVpnClientFile.py"
+ENTRY="20 */3 * * *	root python /opt/scripts/GetOpenVpnClientFile.py"
 cat mycron | grep 'GetOpenVpnClientFile.py'  && echo 'Entry 3 exists' || echo "20 */3 * * *	root python3 /opt/scripts/GetOpenVpnClientFile.py" >> mycron
 
 # Install new crontab
@@ -41,7 +41,6 @@ rm mycron
 #Enable services
 systemctl enable ssh
 systemctl start ssh
-systemctl enable openvpn@server.service --now
 
 echo "Rebooting system"
 reboot
