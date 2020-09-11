@@ -1,0 +1,9 @@
+- name: Install and configure Ansible server
+  hosts: openvpn_server
+  become: yes
+
+
+  roles:
+    - role: ansible
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+

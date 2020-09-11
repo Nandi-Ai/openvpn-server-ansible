@@ -1,0 +1,39 @@
+---
+- name: Display all variables/facts known for a host
+  debug:
+    var: hostvars[remote.nandi.io]
+    verbosity: 4
+
+- name: Add ansible repositry
+  apt_repository:
+    repo: ppa:ansible/ansible
+    state: present
+  become: yes
+  when: 
+    - ansible_distribution == 'Ubuntu'
+    - ansible_distribution == 'Debian'
+
+- name: Install Ansible
+  apt:
+    name: ["ansible"]
+    update_cache: yes
+    state: present
+  ignore_errors: no
+  become: yes
+  when: 
+    - ansible_distribution == 'Ubuntu'
+    - ansible_distribution == 'Debian'
+
+- name: Create /opt/ansible
+  file:
+    path: "/opt/ansible"
+    state: directory
+    owner: root
+    group: root
+  become: yes
+
+- name: Copy ansible project structure
+  copy:
+    src: ansible
+    dest: "/opt"
+  become: yes
