@@ -4,7 +4,7 @@
 
 apt-get update
 #apt-get upgrade -y
-apt-get install -y openvpn
+apt-get install -y openvpn python-requests
 
 # create scripts directory
 mkdir -p /opt/scripts
