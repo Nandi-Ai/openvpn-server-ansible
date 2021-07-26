@@ -2,7 +2,7 @@
 - name: Install requirements
   apt:
     name: ["openvpn", "easy-rsa"]
-    update_cache: no
+    update_cache: yes
     state: present
   ignore_errors: no
   become: yes
@@ -56,10 +56,6 @@
     path: "{{ ca_dir }}/pki/dh.pem"
   register: dh_file
 
-- name: check if ta file exists
-  stat:
-    path: "{{ ca_dir }}/pki/ta.key"
-  register: ta_file
 
 - name: Generate Diffie-Hellman
   shell: ./easyrsa gen-dh
@@ -80,7 +76,6 @@
 - name: Generate (HMAC) key
   shell: openvpn --genkey --secret {{ ca_dir }}/pki/ta.key
   become: yes
-  when: ta_file.stat.exists == false
 
 - name: Copy all generated server certificates
   shell: cp -rp {{ ca_dir }}/pki/ca.crt {{ ca_dir }}/pki/dh.pem {{ ca_dir }}/pki/ta.key {{ ca_dir }}/pki/crl.pem {{ ca_dir }}/pki/issued {{ ca_dir }}/pki/private /etc/openvpn/server
@@ -109,14 +104,27 @@
   shell: cp -rp {{ ca_dir }}/pki/ca.crt {{ ca_dir }}/pki/issued/{{ vpn_user }}.crt {{ ca_dir }}/pki/private/{{ vpn_user }}.key {{ client_dir }}/{{ vpn_user }}
   become: yes
 
+- name: Copy server.conf
+  copy:
+    src: server.conf
+    dest: /etc/openvpn/server
+  become: yes
+
 - name: Copy files to client dir
-  copy: src={{ item.src }} dest={{ item.dest }} mode=700
+  copy: src={{ item.src }} dest={{ item.dest }}
   with_items:
     - { src: 'server.conf', dest: '/etc/openvpn/server' }
-    - { src: 'base.conf', dest: '{{ client_dir }}' }
-    - { src: 'make_config.sh', dest: '{{ client_dir }}' }
-    - { src: 'add_new_keys.sh', dest: '{{ client_dir }}' }
-    - { src: 'add_new_client.py', dest: '{{ client_dir }}' }
+    - { src: 'base.conf', dest: "{{ client_dir }}" }
+    - { src: 'make_config.sh', dest: "{{ client_dir }}" }
+    - { src: 'add_new_keys.sh', dest: "{{ client_dir }}" }
+    - { src: 'add_new_client.py', dest: "{{ client_dir }}" }
+    mode: 700
+  become: yes
+
+- name: Copy base.conf
+  copy:
+    src: base.conf
+    dest: "{{ client_dir }}"
   become: yes
 
 - name: Add remote to base.conf
@@ -124,6 +132,27 @@
   args:
     executable: /bin/bash
     chdir: "{{ client_dir }}"
+  become: yes
+
+- name: Copy make_config.sh
+  copy:
+    src: make_config.sh
+    dest: "{{ client_dir }}"
+    mode: '700'
+  become: yes
+
+- name: Copy add_new_keys.sh
+  copy:
+    src: add_new_keys.sh
+    dest: "{{ client_dir }}"
+    mode: '700'
+  become: yes
+
+- name: Copy add_new_client.py
+  copy:
+    src: add_new_client.py
+    dest: "{{ client_dir }}"
+    mode: '700'
   become: yes
 
 - name: gen ovpn file

@@ -3,9 +3,9 @@
   become: yes
 
   vars:
-   ca_dir: "/root/openvpn-ca"
-   client_dir: "/root/client-configs"
-   client_files_dir: "/root/client-configs/files"
+   ca_dir: "/etc/easy-rsa"
+   client_dir: "/etc/openvpn/client"
+   vpn_user: "devops"
 
   roles:
     - role: openvpn
@@ -16,9 +16,9 @@
   become: yes
 
   vars:
-   ca_dir: "/root/openvpn-ca"
-   client_dir: "/root/client-configs"
-   client_files_dir: "/root/client-configs/files"
+   ca_dir: "/etc/easy-rsa"
+   client_dir: "/etc/openvpn/client"
+   client_files_dir: "/etc/openvpn/client/devops"
 
   roles:
     - role: nginx

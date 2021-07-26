@@ -2,10 +2,9 @@
 
 # First argument: Client identifier
 
-KEY_DIR=/etc/openvpn/client/$1
-OUTPUT_DIR=/home/ubuntu
-BASE_CONFIG=/etc/openvpn/client/base.conf
-SERVER_TA=/etc/openvpn/server/ta.key
+KEY_DIR=/root/openvpn-ca/keys
+OUTPUT_DIR=/root/client-configs/files
+BASE_CONFIG=/root/client-configs/base.conf
 
 cat ${BASE_CONFIG} \
     <(echo -e '<ca>') \
@@ -15,6 +14,6 @@ cat ${BASE_CONFIG} \
     <(echo -e '</cert>\n<key>') \
     ${KEY_DIR}/${1}.key \
     <(echo -e '</key>\n<tls-auth>') \
-    ${SERVER_TA} \
+    ${KEY_DIR}/ta.key \
     <(echo -e '</tls-auth>') \
     > ${OUTPUT_DIR}/${1}.ovpn

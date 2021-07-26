@@ -1,13 +1,13 @@
-- name: Configure nginx with ssl
+- name: Configure Openvpn Server
   hosts: openvpn_server
   become: yes
 
   vars:
    ca_dir: "/etc/easy-rsa"
    client_dir: "/etc/openvpn/client"
-   client_files_dir: "/etc/openvpn/client/devops"
+   vpn_user: "devops"
 
   roles:
-    - role: nginx
+    - role: openvpn
       when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
