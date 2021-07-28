@@ -36,7 +36,7 @@ def get_certificate():
 
     if "serial_number" in request_data: # Get Checks And Server
         serial_number = str(request_data["serial_number"])
-        file_path = "/root/client-configs/files/" + str(serial_number) + ".ovpn"
+        file_path = "/home/ubuntu/" + str(serial_number) + ".ovpn"
         if os.path.isfile(file_path):
             # Created already
             LOGGER.info('File Exist Already - return certificate')
@@ -47,7 +47,7 @@ def get_certificate():
         else:
             # Need to create new cert
             LOGGER.info('Generate new certificate for %s', serial_number)
-            os.system("python3 /root/client-configs/add_new_client.py -n "+serial_number)
+            os.system("python3 /etc/openvpn/client/add_new_client.py -n "+serial_number)
             if check_if_file_exist(file_path):
                 with open(file_path, 'r') as file:
                     cert = file.read()
