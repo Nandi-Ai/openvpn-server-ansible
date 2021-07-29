@@ -3,7 +3,7 @@
 # First argument: Client identifier
 
 KEY_DIR=/etc/openvpn/client/$1
-OUTPUT_DIR=/home/ubuntu
+OUTPUT_DIR=/home/ubuntu/certs
 BASE_CONFIG=/etc/openvpn/client/base.conf
 SERVER_TA=/etc/openvpn/server/ta.key
 

@@ -126,6 +126,14 @@
     chdir: "{{ client_dir }}"
   become: yes
 
+- name: Create certs dir
+  file:
+    path: "/home/ubuntu/certs"
+    state: directory
+    owner: www-data
+    group: www-data
+  become: yes
+
 - name: gen ovpn file
   shell: bash make_config.sh {{ vpn_user }}
   args:
